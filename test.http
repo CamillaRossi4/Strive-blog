@@ -1,0 +1,175 @@
+
+GET http://localhost:3001/authors
+
+###
+
+GET http://localhost:3001/blogPosts
+
+###
+
+POST http://localhost:3001/blogPosts
+Authorization: Bearer
+Content-Type: application/json
+
+{
+  "category": "Technology",
+  "title": "My First Article",
+  "cover": "https://picsum.photos/800/400",
+  "readTime": {
+    "value": 5,
+    "unit": "minutes"
+  },
+  "content": "This is the first article on my Strive Blog."
+}
+
+###
+
+GET http://localhost:3001/blogPosts/6ad87da38fb3eba45c4cafa8
+
+###
+
+PUT http://localhost:3001/blogPosts/6ad87da38fb3eba45c4cafa8
+Authorization: Bearer
+Content-Type: application/json
+
+{
+  "title": "My First Updated Article"
+}
+
+###
+
+DELETE http://localhost:3001/blogPosts/6ad87da38fb3eba45c4cafa8
+Authorization: Bearer
+
+###
+
+GET http://localhost:3001/blogPosts?title=article&page=1&limit=5
+
+###
+
+POST http://localhost:3001/blogPosts/6ad87da38fb3eba45c4cafa8/comments
+Authorization: Bearer
+Content-Type: application/json
+
+{
+  "content": "This article is really interesting!"
+}
+
+###
+
+GET http://localhost:3001/blogPosts/6ad87da38fb3eba45c4cafa8/comments
+
+###
+
+PUT http://localhost:3001/blogPosts/6ad87da38fb3eba45c4cafa8/comments/6ad880cdbcca52d5bd797098
+Authorization: Bearer
+Content-Type: application/json
+
+{
+  "content": "I have updated my comment!"
+}
+
+###
+
+GET http://localhost:3001/blogPosts/6ad87da38fb3eba45c4cafa8/comments
+
+###
+
+DELETE http://localhost:3001/blogPosts/6ad87da38fb3eba45c4cafa8/comments/6ad880cdbcca52d5bd797098
+Authorization: Bearer
+
+###
+
+POST http://localhost:3001/auth/register
+Content-Type: application/json
+
+{
+  "nome": "Test",
+  "cognome": "Author",
+  "email": "test.jwt@example.com",
+  "password": "Password123!"
+}
+
+###
+
+POST http://localhost:3001/auth/login
+Content-Type: application/json
+
+{
+  "email": "test.jwt@example.com",
+  "password": "Password123!"
+}
+
+###
+
+GET http://localhost:3001/auth/me
+Authorization: Bearer
+
+###
+
+POST http://localhost:3001/blogPosts
+Authorization: Bearer
+Content-Type: application/json
+
+{
+  "category": "Technology",
+  "title": "Article by an Authenticated Author",
+  "cover": "https://picsum.photos/800/400",
+  "readTime": {
+    "value": 5,
+    "unit": "minutes"
+  },
+  "content": "This article is automatically associated with the authenticated author."
+}
+
+###
+
+POST http://localhost:3001/auth/register
+Content-Type: application/json
+
+{
+  "nome": "Second",
+  "cognome": "Author",
+  "email": "second.author@example.com",
+  "password": "Password123!"
+}
+
+###
+
+POST http://localhost:3001/auth/login
+Content-Type: application/json
+
+{
+  "email": "second.author@example.com",
+  "password": "Password123!"
+}
+
+###
+
+PUT http://localhost:3001/blogPosts/6ad8abb0342df8dab0fd5a05
+Authorization: Bearer
+Content-Type: application/json
+
+{
+  "title": "Unauthorized Modification Attempt"
+}
+
+###
+
+POST http://localhost:3001/blogPosts/6ad8abb0342df8dab0fd5a05/comments
+Authorization: Bearer
+Content-Type: application/json
+
+{
+  "content": "This is my first authenticated comment!"
+}
+
+###
+
+PUT http://localhost:3001/blogPosts/6ad8abb0342df8dab0fd5a05/comments/6ad8b088e0b08ace1816cabe
+Authorization: Bearer
+Content-Type: application/json
+
+{
+  "content": "Attempt to modify another author's comment"
+}
