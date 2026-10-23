@@ -1,11 +1,7 @@
-
-
 import { useEffect, useState } from "react";
 import PostEditor from "./PostEditor";
 import "./App.css";
-
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3001";
-
 function App() {
   const [posts, setPosts] = useState([]);
   const [selectedPost, setSelectedPost] = useState(null);
@@ -40,7 +36,6 @@ function App() {
   const [commentMessage, setCommentMessage] = useState("");
   const [editorOpen, setEditorOpen] = useState(false);
   const [editingPost, setEditingPost] = useState(null);
-
   const getPosts = async () => {
     try {
       const response = await fetch(`${API_URL}/blogPosts`);
@@ -54,7 +49,6 @@ function App() {
       setLoading(false);
     }
   };
-
   useEffect(() => {
     const loadPosts = async () => {
       try {
@@ -69,35 +63,27 @@ function App() {
         setLoading(false);
       }
     };
-
     loadPosts();
   }, []);
-
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const googleToken = params.get("google_token");
     const googleError = params.get("google_error");
-
     if (googleToken) {
       localStorage.setItem("striveToken", googleToken);
     }
-
     if (googleToken || googleError) {
       window.history.replaceState({}, "", window.location.pathname);
     }
   }, []);
-
   useEffect(() => {
     if (!token) return;
-
     const getProfile = async () => {
       try {
         const response = await fetch(`${API_URL}/auth/me`, {
           headers: { Authorization: `Bearer ${token}` }
         });
-
         if (!response.ok) throw new Error("Invalid session.");
-
         const data = await response.json();
         setAuthor(data.author || data);
       } catch {
@@ -106,15 +92,12 @@ function App() {
         setAuthor(null);
       }
     };
-
     getProfile();
   }, [token]);
-
   const getComments = async (id) => {
     setCommentsLoading(true);
     setCommentsError("");
     setComments([]);
-
     try {
       const response = await fetch(`${API_URL}/blogPosts/${id}/comments`);
       if (!response.ok) throw new Error("Unable to load comments.");
@@ -126,7 +109,6 @@ function App() {
       setCommentsLoading(false);
     }
   };
-
   const openPost = async (id) => {
     try {
       setError("");
@@ -135,10 +117,8 @@ function App() {
       setDetailLoading(true);
       setNewComment("");
       setCommentMessage("");
-
       const response = await fetch(`${API_URL}/blogPosts/${id}`);
       if (!response.ok) throw new Error("Article not found.");
-
       const data = await response.json();
       setSelectedPost(data);
       getComments(id);
@@ -149,7 +129,6 @@ function App() {
       setDetailLoading(false);
     }
   };
-
   const goHome = () => {
     setSelectedPost(null);
     setAuthPage("");
@@ -162,7 +141,6 @@ function App() {
     setCommentMessage("");
     window.scrollTo(0, 0);
   };
-
   const openAuth = (page) => {
     setSelectedPost(null);
     setEditorOpen(false);
@@ -171,56 +149,46 @@ function App() {
     setAuthForm({ nome: "", cognome: "", email: "", password: "" });
     window.scrollTo(0, 0);
   };
-
   const openEditor = (post = null) => {
     if (!author) {
       openAuth("login");
       return;
     }
-
     setSelectedPost(null);
     setAuthPage("");
     setEditingPost(post);
     setEditorOpen(true);
     window.scrollTo(0, 0);
   };
-
   const handleSavedPost = async () => {
     await getPosts();
     goHome();
   };
-
   const handleAuthChange = (event) => {
     setAuthForm({ ...authForm, [event.target.name]: event.target.value });
   };
-
   const handleAuthSubmit = async (event) => {
     event.preventDefault();
     setAuthError("");
     setAuthLoading(true);
-
     try {
       const endpoint = authPage === "register" ? "register" : "login";
       const body = authPage === "register"
         ? authForm
         : { email: authForm.email, password: authForm.password };
-
       const response = await fetch(`${API_URL}/auth/${endpoint}`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(body)
       });
-
       const data = await response.json();
       if (!response.ok) {
         throw new Error(data.message || data.error || "Operation failed.");
       }
-
       if (authPage === "register") {
         openAuth("login");
       } else {
         if (!data.token) throw new Error("No token received.");
-
         localStorage.setItem("striveToken", data.token);
         setToken(data.token);
         setAuthor(data.author || null);
@@ -232,22 +200,18 @@ function App() {
       setAuthLoading(false);
     }
   };
-
   const logout = () => {
     localStorage.removeItem("striveToken");
     setToken("");
     setAuthor(null);
     goHome();
   };
-
   const handleCommentSubmit = async (event) => {
     event.preventDefault();
     if (!newComment.trim() || !selectedPost || !token) return;
-
     setCommentSending(true);
     setCommentsError("");
     setCommentMessage("");
-
     try {
       const response = await fetch(
         `${API_URL}/blogPosts/${selectedPost._id}/comments`,
@@ -260,12 +224,10 @@ function App() {
           body: JSON.stringify({ content: newComment.trim() })
         }
       );
-
       const data = await response.json();
       if (!response.ok) {
         throw new Error(data.message || data.error || "Unable to publish comment.");
       }
-
       setNewComment("");
       setCommentMessage("Your comment has been published.");
       await getComments(selectedPost._id);
@@ -275,13 +237,11 @@ function App() {
       setCommentSending(false);
     }
   };
-
   const getAuthor = (post) => {
     return post.author
       ? `${post.author.nome} ${post.author.cognome}`
       : "Strive Blog";
   };
-
   const isMyPost = (post) => {
     if (!author || !post?.author) return false;
     const postAuthorId = typeof post.author === "object"
@@ -289,10 +249,8 @@ function App() {
       : post.author;
     return String(postAuthorId) === String(author._id);
   };
-
   const featuredPost = posts[0];
   const otherPosts = posts.slice(1);
-
   return (
     <div className="app">
       <header className="header">
@@ -306,7 +264,6 @@ function App() {
         >
           striveblog<span>.</span>
         </a>
-
         <div className="header-bottom">
           <span>AN INDEPENDENT JOURNAL</span>
           <div className="header-actions">
@@ -326,7 +283,6 @@ function App() {
           <span className="header-edition">ISSUE Nº 001 — EST. 2026</span>
         </div>
       </header>
-
       <main className="container">
         {editorOpen ? (
           <PostEditor
@@ -344,7 +300,6 @@ function App() {
                 ? "Create an account and join the conversation."
                 : "Log in to join the conversation."}
             </p>
-
             <form className="auth-form" onSubmit={handleAuthSubmit}>
               {authPage === "register" && (
                 <>
@@ -366,7 +321,6 @@ function App() {
                   />
                 </>
               )}
-
               <label htmlFor="email">EMAIL</label>
               <input
                 id="email"
@@ -376,7 +330,6 @@ function App() {
                 onChange={handleAuthChange}
                 required
               />
-
               <label htmlFor="password">PASSWORD</label>
               <input
                 id="password"
@@ -387,9 +340,7 @@ function App() {
                 minLength={authPage === "register" ? 8 : undefined}
                 required
               />
-
               {authError && <p className="error">{authError}</p>}
-
               <button className="auth-submit" type="submit" disabled={authLoading}>
                 {authLoading
                   ? "PLEASE WAIT..."
@@ -397,7 +348,6 @@ function App() {
                     ? "CREATE ACCOUNT ↗"
                     : "LOG IN ↗"}
               </button>
-
               {authPage === "login" && (
                 <button
                   className="google-login"
@@ -410,7 +360,6 @@ function App() {
                 </button>
               )}
             </form>
-
             <p className="auth-switch">
               {authPage === "register"
                 ? "Already have an account?"
@@ -429,25 +378,20 @@ function App() {
             <button className="back-button" onClick={goHome}>
               ← BACK TO THE JOURNAL
             </button>
-
             <div className="detail-topline">
               <span>{selectedPost.category}</span>
               <span>STRIVE BLOG / THE JOURNAL</span>
             </div>
-
             <h1>{selectedPost.title}</h1>
-
             <div className="detail-meta">
               <span>WORDS BY {getAuthor(selectedPost)}</span>
               <span>
                 {selectedPost.readTime?.value} {selectedPost.readTime?.unit} READ
               </span>
             </div>
-
             <div className="detail-image">
               <img src={selectedPost.cover} alt={selectedPost.title} />
             </div>
-
             {isMyPost(selectedPost) && (
               <div className="post-management">
                 <button onClick={() => openEditor(selectedPost)}>
@@ -455,32 +399,30 @@ function App() {
                 </button>
               </div>
             )}
-
-            <div className="article-content">{selectedPost.content}</div>
-
+            <div className="article-content">
+              {selectedPost.content.split(/\n\s*\n/).filter((paragraph) => paragraph.trim()).map((paragraph, index) => (
+                <p key={index}>{paragraph.trim()}</p>
+              ))}
+            </div>
             <section className="comments-section">
               <div className="comments-heading">
                 <span>THE CONVERSATION / 001</span>
                 <h2>What do <em>you</em> think?</h2>
                 <p>Good stories deserve more than one perspective.</p>
               </div>
-
               {commentsLoading && <p>Loading comments...</p>}
               {commentsError && <p className="error">{commentsError}</p>}
-
               {!commentsLoading && !commentsError && comments.length === 0 && (
                 <p className="comments-empty">
                   No comments yet. Be the first to start the conversation.
                 </p>
               )}
-
               {!commentsLoading && comments.map((comment) => (
                 <div className="comment" key={comment._id}>
                   <span className="comment-author">{comment.author}</span>
                   <p>{comment.content}</p>
                 </div>
               ))}
-
               {author ? (
                 <form className="comment-form" onSubmit={handleCommentSubmit}>
                   <label htmlFor="newComment">ADD YOUR PERSPECTIVE</label>
@@ -511,7 +453,6 @@ function App() {
                 </div>
               )}
             </section>
-
             <button className="back-button" onClick={goHome}>
               ← MORE STORIES
             </button>
@@ -522,13 +463,11 @@ function App() {
               <span>THE JOURNAL / VOL. 001</span>
               <p>For curious minds and conversations worth having.</p>
             </section>
-
             {loading && <p className="status-message">Loading articles...</p>}
             {error && <p className="error">{error}</p>}
             {!loading && !error && posts.length === 0 && (
               <p className="status-message">No articles available.</p>
             )}
-
             {featuredPost && (
               <section className="cover-story">
                 <button
@@ -547,7 +486,6 @@ function App() {
                 </button>
               </section>
             )}
-
             {otherPosts.length > 0 && (
               <section className="articles" id="stories">
                 <div className="section-heading">
@@ -555,7 +493,6 @@ function App() {
                   <h2>Inside the <em>journal.</em></h2>
                   <p>Different voices. Different perspectives.</p>
                 </div>
-
                 <div className="posts-grid">
                   {otherPosts.map((post, index) => (
                     <button
@@ -580,7 +517,6 @@ function App() {
                 </div>
               </section>
             )}
-
             <section className="journal-note">
               <span>AN OPEN QUESTION / 001</span>
               <p>I couldn't help but wonder...</p>
@@ -592,11 +528,9 @@ function App() {
             </section>
           </>
         )}
-
         {detailLoading && <p className="status-message">Loading article...</p>}
         {selectedPost && error && <p className="error">{error}</p>}
       </main>
-
       <footer className="footer">
         <div className="footer-inner">
           <span>AN INDEPENDENT JOURNAL</span>
@@ -613,5 +547,4 @@ function App() {
     </div>
   );
 }
-
 export default App;
