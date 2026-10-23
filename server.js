@@ -5,6 +5,7 @@ import mongoose from "mongoose";
 import authorsRouter from "./routes/authors.js";
 import blogPostsRouter from "./routes/blogPosts.js";
 import authRouter from "./routes/auth.js";
+import passport from "./config/passport.js";
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -15,6 +16,7 @@ app.use(
   }),
 );
 app.use(express.json());
+app.use(passport.initialize());
 app.use("/authors", authorsRouter);
 app.use("/blogPosts", blogPostsRouter);
 app.use("/auth", authRouter);

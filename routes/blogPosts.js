@@ -157,6 +157,28 @@ router.get("/:id/comments", async (req, res) => {
   }
 });
 
+router.get("/:id/comments/:commentId", async (req, res) => {
+  try {
+    if (
+      !mongoose.isValidObjectId(req.params.id) ||
+      !mongoose.isValidObjectId(req.params.commentId)
+    ) {
+      return res.status(400).json({ message: "Invalid ID." });
+    }
+    const post = await BlogPost.findById(req.params.id);
+    if (!post) {
+      return res.status(404).json({ message: "Article not found." });
+    }
+    const comment = post.comments.id(req.params.commentId);
+    if (!comment) {
+      return res.status(404).json({ message: "Comment not found." });
+    }
+    res.json(comment);
+  } catch (error) {
+    res.status(500).json({ message: "Unable to load comment." });
+  }
+});
+
 router.post("/:id/comments", auth, async (req, res) => {
   try {
     if (!mongoose.isValidObjectId(req.params.id)) {

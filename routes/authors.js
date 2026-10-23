@@ -9,8 +9,18 @@ const router = express.Router();
 
 router.get("/", async (req, res) => {
   try {
-    const authors = await Author.find();
-    res.json(authors);
+    const page = Math.max(1, Math.floor(Number(req.query.page) || 1));
+    const limit = Math.min(
+      100,
+      Math.max(1, Math.floor(Number(req.query.limit) || 10)),
+    );
+    const skip = (page - 1) * limit;
+    const authors = await Author.find()
+      .sort({ _id: -1 })
+      .skip(skip)
+      .limit(limit);
+    const total = await Author.countDocuments();
+    res.json({ authors, total, page, totalPages: Math.ceil(total / limit) });
   } catch (error) {
     res.status(500).json({ message: "Unable to load authors." });
   }
