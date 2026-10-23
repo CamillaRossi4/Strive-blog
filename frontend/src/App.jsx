@@ -1,8 +1,10 @@
-import { useEffect, useState } from "react";
+
+import { useEffect, useRef, useState } from "react";
 import PostEditor from "./PostEditor";
 import "./App.css";
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3001";
 function App() {
+  const articleRef = useRef(null);
   const [posts, setPosts] = useState([]);
   const [selectedPost, setSelectedPost] = useState(null);
   const [comments, setComments] = useState([]);
@@ -94,6 +96,14 @@ function App() {
     };
     getProfile();
   }, [token]);
+  useEffect(() => {
+    if (selectedPost && articleRef.current) {
+      articleRef.current.scrollIntoView({
+        behavior: "smooth",
+        block: "start"
+      });
+    }
+  }, [selectedPost]);
   const getComments = async (id) => {
     setCommentsLoading(true);
     setCommentsError("");
@@ -122,7 +132,6 @@ function App() {
       const data = await response.json();
       setSelectedPost(data);
       getComments(id);
-      window.scrollTo(0, 0);
     } catch (error) {
       setError(error.message);
     } finally {
@@ -374,7 +383,7 @@ function App() {
             </p>
           </section>
         ) : selectedPost ? (
-          <article className="article-detail">
+          <article className="article-detail" ref={articleRef}>
             <button className="back-button" onClick={goHome}>
               ← BACK TO THE JOURNAL
             </button>
